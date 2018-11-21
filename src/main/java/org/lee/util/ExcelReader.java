@@ -1,12 +1,10 @@
 package org.lee.util;
 
-import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ExcelReader {
@@ -14,11 +12,11 @@ public class ExcelReader {
     public ResultColl compareNewAndOldTable(String newTable, String oldTable) throws IOException, DataInvalidException {
         List<Map<String, String>> newData;
 
-        newData = read(newTable, 0);
+        newData = readBook(newTable, 0);
 
         List<Map<String, String>> oldData;
 
-        oldData = read(oldTable, 0);
+        oldData = readBook(oldTable, 0);
 
         Map<String, Map<String, String>> oldDataMap;
         try {
@@ -30,7 +28,7 @@ public class ExcelReader {
     }
 
     public ResultColl compareNewAndBakTable(List<Map<String, String>> leftData, String bakTable) throws IOException, DataInvalidException {
-        List<Map<String, String>> bakData = read(bakTable, 0);
+        List<Map<String, String>> bakData = readBook(bakTable, 0);
         Map<String, Map<String, String>> bakMap = null;
         try {
             bakMap = toMap(bakData);
@@ -54,6 +52,10 @@ public class ExcelReader {
         // [1,2,3],[4,5,6]
         List<Map<String, String>> resultData = newData.stream().filter(obj -> {
             Map<String, String> oldDataTemp = compareMap.get(obj.get(ExcelCloumnName.ADMIN_AREA) + obj.get(ExcelCloumnName.DEVICE_NAME));
+            if (Objects.nonNull(oldDataTemp)) {
+                // 覆盖值
+                coverNewTableData(obj, oldDataTemp);
+            }
             return Objects.nonNull(oldDataTemp);
         }).collect(Collectors.toList());
 
@@ -65,9 +67,31 @@ public class ExcelReader {
         return new ResultColl(leftData, resultData);
     }
 
-    public List<Map<String, String>> read(String file, int readFileType) throws IOException, DataInvalidException {
+    private void coverNewTableData(Map<String, String> newTableData, Map<String, String> compareTableData){
+        for (Map.Entry<Integer, String> ele : ExcelCloumnName.EXCEL_CLOUMN.entrySet()) {
+            String value = ele.getValue();
+            newTableData.replace(value, compareTableData.get(value));
+        }
+    }
+
+    public List<Map<String, String>> readBook(String file, int readFileType) throws IOException, DataInvalidException {
         Workbook wb = WorkbookFactory.create(new File(file));
-        Sheet sheet = wb.getSheetAt(0);
+        List<Map<String, String>> data = new ArrayList<>();
+        for (int index = 0, len = wb.getNumberOfSheets(); index < len; index++) {
+            List<Map<String, String>> temp;
+            try {
+                temp = readSheet(wb.getSheetAt(index), readFileType);
+            } catch (DataInvalidException e) {
+                String message = e.getMessage();
+                message = file + "  " + message;
+                throw new DataInvalidException(message);
+            }
+            data.addAll(temp);
+        }
+        return data;
+    }
+
+    public List<Map<String, String>> readSheet(Sheet sheet, int readFileType) throws IOException, DataInvalidException {
         List<Map<String, String>> data = new ArrayList<>();
         for (int index = 0, len = sheet.getLastRowNum(); index <= len; index++) {
             Row row = sheet.getRow(index);
@@ -86,7 +110,7 @@ public class ExcelReader {
 
             } catch (DataInvalidException e) {
                 String message = e.getMessage();
-                message = file + "    第" + (index + 1) + "行    " + message;
+                message = sheet.getSheetName() + "    第" + (index + 1) + "行    " + message;
                 throw new DataInvalidException(message);
             }
             data.add(temp);
@@ -94,7 +118,11 @@ public class ExcelReader {
         return data;
     }
 
+
     private boolean isBlank(Row row){
+        if (Objects.isNull(row)) {
+            return true;
+        }
         Cell deviceCode = row.getCell(0);
         if (!Objects.equals(deviceCode.getCellType(), CellType.BLANK)) {
             return false;
@@ -171,7 +199,7 @@ public class ExcelReader {
     }
 
     public List<Map<String, String>> readPoliceTable(String file) throws IOException, DataInvalidException {
-        return read(file, 1);
+        return readBook(file, 1);
     }
 
     private Map<String, String> readPoliceTable(Row row) throws DataInvalidException {

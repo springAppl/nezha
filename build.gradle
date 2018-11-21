@@ -1,4 +1,4 @@
-group 'org.liu.tool'
+group 'org.lee.tool'
 version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
@@ -18,6 +18,10 @@ dependencies {
 jar {
     manifest {
         attributes 'Main-Class': 'org.lee.util.Boot'
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    into('assets') {
+        from 'assets'
     }
 }
 tasks.withType(JavaCompile) {

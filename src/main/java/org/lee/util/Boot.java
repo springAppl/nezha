@@ -10,7 +10,9 @@ public class Boot {
         ResultColl resultColl = boot.filterNewTable();
         List<Map<String, String>> data = boot.dealInvalidData(resultColl.getLeftData());
         resultColl.getResultData().addAll(data);
-        System.out.println(resultColl.getResultData());
+        resultColl.getResultData().forEach(System.out::println);
+        ExcelWriter writer = new ExcelWriter();
+        writer.writeResult("result", resultColl.getResultData());
     }
 
     public List<Map<String, String>> dealInvalidData(List<Map<String, String>> data) throws IOException, DataInvalidException {
@@ -31,7 +33,7 @@ public class Boot {
     public List<Map<String, String>> fillData(List<Map<String, String>> innerData, List<Map<String, String>> outData) throws IOException, DataInvalidException {
         List<Map<String, String>> data = new ArrayList<>();
         List<Map<String, String>> polictTable = readPoliceTable();
-        policeMap = polictTable.stream().collect(Collectors.toMap(ele -> ele.get(PoliceTableCloumnName.ADMIN_AREA), ele -> ele));
+        policeMap = polictTable.stream().collect(Collectors.toMap(ele -> ele.get(PoliceTableCloumnName.ADMIN_AREA).trim(), ele -> ele));
 
         data.addAll(
                 innerData.stream().map(this::fillInnerData).collect(Collectors.toList())

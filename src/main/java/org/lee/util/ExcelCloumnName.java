@@ -53,4 +53,25 @@ public class ExcelCloumnName {
             put(15, DEVICE_STATE);
         }
     };
+
+    public static final Map<Integer, String> FULL_EXCEL_CLOUMN = new HashMap<Integer, String>(){
+        {
+            put(0, DEVICE_CODE);
+            put(1, DEVICE_NAME);
+            put(2, DEVICE_BRAND);
+            put(3, ADMIN_AREA);
+            put(4, POINT_TYPE);
+            put(5, INSTALL_LOCATION);
+            put(6, DEVICE_LONGITUDE);
+            put(7, DEVICE_LATITUDE);
+            put(8, LOCATION_TYPE);
+            put(9, CONNECT_INTERNET);
+            put(10, POLICE_CODE);
+            put(11, INSTALL_TIME);
+            put(12, MANAGE_UNIT);
+            put(13, PHONE);
+            put(14, SAVE_DAY);
+            put(15, DEVICE_STATE);
+        }
+    };
 }
