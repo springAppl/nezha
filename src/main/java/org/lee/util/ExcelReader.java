@@ -164,7 +164,7 @@ public class ExcelReader {
         } catch (DataFormatException e) {
             throw new DataInvalidException(String.format("第%d列 ", cloumn + 1) + e.getMessage());
         }
-        return cell.getStringCellValue();
+        return cell.getStringCellValue().trim();
     }
 
     private String getNullOrStringCellValue(Row row, int cloumn, String errorMessage) throws DataInvalidException {
@@ -175,7 +175,7 @@ public class ExcelReader {
         }
 
         if (Objects.equals(cell.getCellType(), CellType.STRING)) {
-            return cell.getStringCellValue();
+            return cell.getStringCellValue().trim();
         }
         throw new DataInvalidException(String.format("第%d列 ", cloumn + 1) + errorMessage);
     }

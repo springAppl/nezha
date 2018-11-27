@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class ExcelWriter {
 
@@ -50,7 +51,11 @@ public class ExcelWriter {
         Row row = sheet.createRow(index);
         ExcelCloumnName.FULL_EXCEL_CLOUMN.forEach((key, value) -> {
             int cellIndex = key;
-            writeStringCell(row, cellIndex, data.get(value));
+            if(Objects.equals(ExcelCloumnName.ADMIN_AREA, value)) {
+                writeStringCell(row, cellIndex, data.get(value).substring(0, 6));
+            } else {
+                writeStringCell(row, cellIndex, data.get(value));
+            }
         });
     }
 
