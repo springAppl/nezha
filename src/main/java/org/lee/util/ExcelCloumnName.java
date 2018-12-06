@@ -18,7 +18,7 @@ public class ExcelCloumnName {
 
     public static final String DEVICE_LONGITUDE = "设备经度";
 
-    public static final String DEVICE_LATITUDE = "设备维度";
+    public static final String DEVICE_LATITUDE = "设备纬度";
 
     public static final String LOCATION_TYPE = "摄像机位置类型";
 
