@@ -124,15 +124,15 @@ public class ExcelReader {
             return true;
         }
         Cell deviceCode = row.getCell(0);
-        if (!Objects.equals(deviceCode.getCellType(), CellType.BLANK)) {
+        if (Objects.nonNull(deviceCode) &&  !Objects.equals(deviceCode.getCellType(), CellType.BLANK)) {
             return false;
         }
         Cell deviceName = row.getCell(1);
-        if (!Objects.equals(deviceName.getCellType(), CellType.BLANK)) {
+        if (Objects.nonNull(deviceName) && !Objects.equals(deviceName.getCellType(), CellType.BLANK)) {
             return false;
         }
         Cell adminArea = row.getCell(3);
-        if (!Objects.equals(adminArea.getCellType(), CellType.BLANK)) {
+        if (Objects.nonNull(adminArea) && !Objects.equals(adminArea.getCellType(), CellType.BLANK)) {
             return false;
         }
         return true;
@@ -209,8 +209,11 @@ public class ExcelReader {
 
         data.put(PoliceTableCloumnName.NAME, getStringCellValue(row, 1, PoliceTableCloumnName.NAME + "数据错误"));
 
-        data.put(PoliceTableCloumnName.PHONE, getStringCellValue(row, 2, PoliceTableCloumnName.PHONE + "数据错误"));
+        data.put(PoliceTableCloumnName.PHONE, getNullOrStringCellValue(row, 2, PoliceTableCloumnName.PHONE + "数据错误"));
 
+        data.put(PoliceTableCloumnName.LON, getNullOrStringCellValue(row, 3, PoliceTableCloumnName.LON + "数据错误"));
+
+        data.put(PoliceTableCloumnName.LAT, getNullOrStringCellValue(row, 4, PoliceTableCloumnName.LAT + "数据错误"));
         return data;
     }
 }
