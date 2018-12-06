@@ -7,36 +7,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class ExcelReader {
-
-    public ResultColl compareNewAndOldTable(String newTable, String oldTable) throws IOException, DataInvalidException {
-        List<Map<String, String>> newData;
-
-        newData = readBook(newTable, 0);
-
-        List<Map<String, String>> oldData;
-
-        oldData = readBook(oldTable, 0);
-
-        Map<String, Map<String, String>> oldDataMap;
-        try {
-            oldDataMap = toMap(oldData);
-        } catch (DuplicateAdminAreaException e) {
-            throw new DataInvalidException("旧表 " + e.getMessage());
-        }
-        return compare(newData, oldDataMap);
-    }
-
-    public ResultColl compareNewAndBakTable(List<Map<String, String>> leftData, String bakTable) throws IOException, DataInvalidException {
-        List<Map<String, String>> bakData = readBook(bakTable, 0);
-        Map<String, Map<String, String>> bakMap = null;
-        try {
-            bakMap = toMap(bakData);
-        } catch (DuplicateAdminAreaException e) {
-            throw new DataInvalidException("备份表 " + e.getMessage());
-        }
-        return compare(leftData, bakMap);
-    }
+public abstract class ExcelReader {
 
     public Map<String, Map<String, String>> toMap(List<Map<String, String>> dataList) throws DuplicateAdminAreaException {
         Map<String, Map<String, String>> dataMap;
@@ -74,13 +45,13 @@ public class ExcelReader {
         }
     }
 
-    public List<Map<String, String>> readBook(String file, int readFileType) throws IOException, DataInvalidException {
+    protected List<Map<String, String>> readBook(String file) throws IOException, DataInvalidException {
         Workbook wb = WorkbookFactory.create(new File(file));
         List<Map<String, String>> data = new ArrayList<>();
         for (int index = 0, len = wb.getNumberOfSheets(); index < len; index++) {
             List<Map<String, String>> temp;
             try {
-                temp = readSheet(wb.getSheetAt(index), readFileType);
+                temp = readSheet(wb.getSheetAt(index));
             } catch (DataInvalidException e) {
                 String message = e.getMessage();
                 message = file + "  " + message;
@@ -91,7 +62,7 @@ public class ExcelReader {
         return data;
     }
 
-    public List<Map<String, String>> readSheet(Sheet sheet, int readFileType) throws IOException, DataInvalidException {
+    public List<Map<String, String>> readSheet(Sheet sheet) throws IOException, DataInvalidException {
         List<Map<String, String>> data = new ArrayList<>();
         for (int index = 0, len = sheet.getLastRowNum(); index <= len; index++) {
             Row row = sheet.getRow(index);
@@ -100,14 +71,7 @@ public class ExcelReader {
                 if (isBlank(row)) {
                     break;
                 }
-                if (Objects.equals(0, readFileType)) {
-                    temp = read(row);
-                } else if (Objects.equals(1, readFileType)) {
-                    temp = readPoliceTable(row);
-                } else {
-                    temp = read(row);
-                }
-
+                temp = read(row);
             } catch (DataInvalidException e) {
                 String message = e.getMessage();
                 message = sheet.getSheetName() + "    第" + (index + 1) + "行    " + message;
@@ -138,24 +102,8 @@ public class ExcelReader {
         return true;
     }
 
-    private Map<String, String> read(Row row) throws DataInvalidException {
-        Map<String, String> data = new HashMap<>();
 
-        data.put(ExcelCloumnName.DEVICE_CODE, getStringCellValue(row, 0, "设备编码数据错误"));
-
-        data.put(ExcelCloumnName.DEVICE_NAME, getStringCellValue(row, 1, "设备名称数据错误"));
-
-        data.put(ExcelCloumnName.ADMIN_AREA, getStringCellValue(row, 3, "行政区域数据错误"));
-
-        for (Map.Entry<Integer, String> ele : ExcelCloumnName.EXCEL_CLOUMN.entrySet()){
-            Integer key = ele.getKey();
-            String value = ele.getValue();
-            data.put(value, getNullOrStringCellValue(row, key, value + "数据错误"));
-        }
-        return data;
-    }
-
-    private String getStringCellValue(Row row, int cloumn, String errorMessage) throws DataInvalidException {
+    public String getStringCellValue(Row row, int cloumn, String errorMessage) throws DataInvalidException {
         Cell cell = row.getCell(cloumn);
         try {
             if (!isStringCell(cell)) {
@@ -167,7 +115,7 @@ public class ExcelReader {
         return cell.getStringCellValue().trim();
     }
 
-    private String getNullOrStringCellValue(Row row, int cloumn, String errorMessage) throws DataInvalidException {
+    public String getNullOrStringCellValue(Row row, int cloumn, String errorMessage) throws DataInvalidException {
         Cell cell = row.getCell(cloumn);
 
         if (Objects.isNull(cell) || Objects.equals(cell.getCellType(), CellType.BLANK)) {
@@ -198,22 +146,5 @@ public class ExcelReader {
         return true;
     }
 
-    public List<Map<String, String>> readPoliceTable(String file) throws IOException, DataInvalidException {
-        return readBook(file, 1);
-    }
-
-    private Map<String, String> readPoliceTable(Row row) throws DataInvalidException {
-        Map<String, String> data = new HashMap<>();
-
-        data.put(PoliceTableCloumnName.ADMIN_AREA, getStringCellValue(row, 0, PoliceTableCloumnName.ADMIN_AREA + "数据错误"));
-
-        data.put(PoliceTableCloumnName.NAME, getStringCellValue(row, 1, PoliceTableCloumnName.NAME + "数据错误"));
-
-        data.put(PoliceTableCloumnName.PHONE, getNullOrStringCellValue(row, 2, PoliceTableCloumnName.PHONE + "数据错误"));
-
-        data.put(PoliceTableCloumnName.LON, getNullOrStringCellValue(row, 3, PoliceTableCloumnName.LON + "数据错误"));
-
-        data.put(PoliceTableCloumnName.LAT, getNullOrStringCellValue(row, 4, PoliceTableCloumnName.LAT + "数据错误"));
-        return data;
-    }
+    abstract protected Map<String, String> read(Row row) throws DataInvalidException;
 }

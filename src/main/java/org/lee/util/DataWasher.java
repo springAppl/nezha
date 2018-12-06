@@ -1,13 +1,12 @@
 package org.lee.util;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class DataWasher {
+
+    private Map<String, Map<String, String>> policeMap;
 
     public List<Map<String, String>> fillData(List<Map<String, String>> innerData, List<Map<String, String>> outData) throws IOException, DataInvalidException, DuplicateAdminAreaException {
         List<Map<String, String>> data = new ArrayList<>();
@@ -28,28 +27,36 @@ public class DataWasher {
     public Map<String, String> fillInnerData(Map<String, String> innerData){
         dealDeviceBrand(innerData);
         dealInnerDataPointType(innerData);
-        dealInstallLocation(innerData);
+        dealInstallLocation(innerData, this::subSix);
         dealInnerDataLocationType(innerData);
         dealConnectInternet(innerData);
         dealPoliceCode(innerData);
         dealInnerInstallTime(innerData);
-        dealManageUnit(innerData);
-        dealPhone(innerData);
+        dealManageUnit(innerData, this::subSix);
+        dealPhone(innerData, this::subSix);
         dealSaveDay(innerData);
         dealDeviceState(innerData);
         return innerData;
     }
 
+    public String subSix(String data){
+        return data.substring(0, 6);
+    }
+
+    public String subEight(String data){
+        return data.substring(0, 8);
+    }
+
     public Map<String, String> fillOutData(Map<String, String> outData){
         dealDeviceBrand(outData);
         dealOutDataPointType(outData);
-        dealInstallLocation(outData);
+        dealInstallLocation(outData, this::subEight);
         dealOutDataLocationType(outData);
         dealConnectInternet(outData);
         dealPoliceCode(outData);
         dealOutInstallTime(outData);
-        dealManageUnit(outData);
-        dealPhone(outData);
+        dealManageUnit(outData, this::subEight);
+        dealPhone(outData, this::subEight);
         dealSaveDay(outData);
         dealDeviceState(outData);
         return outData;
@@ -79,15 +86,13 @@ public class DataWasher {
         }
     }
 
-    private Map<String, Map<String, String>> policeMap;
-
     // 安装地址
-    public void dealInstallLocation(Map<String, String> data){
+    public void dealInstallLocation(Map<String, String> data, Function<String, String> mapper){
         String originAdminArea = data.get(ExcelCloumnName.INSTALL_LOCATION);
         if (stringIsEmpty(originAdminArea)) {
             String adminArea = data.get(ExcelCloumnName.ADMIN_AREA);
             try {
-                Map<String, String> value = policeMap.get(adminArea.substring(0,6));
+                Map<String, String> value = policeMap.get(mapper.apply(adminArea));
                 if (Objects.isNull(value)){
                     return;
                 }
@@ -95,7 +100,6 @@ public class DataWasher {
             } catch (Exception e) {
                 System.out.println("error");
             }
-
         }
     }
 
@@ -151,11 +155,11 @@ public class DataWasher {
     }
 
     // 管理单位
-    public void dealManageUnit(Map<String, String> data) {
+    public void dealManageUnit(Map<String, String> data, Function<String, String> mapper) {
         String manageUnit = data.get(ExcelCloumnName.MANAGE_UNIT);
         if (stringIsEmpty(manageUnit)) {
             String adminArea = data.get(ExcelCloumnName.ADMIN_AREA);
-            Map<String, String> value = policeMap.get(adminArea.substring(0,6));
+            Map<String, String> value = policeMap.get(mapper.apply(adminArea));
             if (Objects.isNull(value)){
                 return;
             }
@@ -164,11 +168,11 @@ public class DataWasher {
     }
 
     // 联系方式
-    public void dealPhone(Map<String, String> data) {
+    public void dealPhone(Map<String, String> data, Function<String, String> mapper) {
         String phone = data.get(ExcelCloumnName.PHONE);
         if (stringIsEmpty(phone)) {
             String adminArea = data.get(ExcelCloumnName.ADMIN_AREA);
-            Map<String, String> value = policeMap.get(adminArea.substring(0,6));
+            Map<String, String> value = policeMap.get(mapper.apply(adminArea));
             if (Objects.isNull(value)){
                 return;
             }
