@@ -3,6 +3,7 @@ package org.lee.util;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DataWasher {
@@ -24,8 +25,7 @@ public class DataWasher {
         data.addAll(
                 outData.stream().map(this::fillOutData).collect(Collectors.toList())
         );
-        vilator.alarm();
-        return data;
+        return incLatExist(data);
     }
 
     public Map<String, String> fillInnerData(Map<String, String> innerData) {
@@ -245,7 +245,7 @@ public class DataWasher {
         // 纬度增加
         // 判读小数点后的位数
         String lat = data.get(ExcelCloumnName.DEVICE_LATITUDE);
-        String[] strs = lat.split(".");
+        String[] strs = lat.split("\\.");
         String smallValue;
         vilator.inc();
         String bigValue;
@@ -256,9 +256,26 @@ public class DataWasher {
             bigValue = strs[0];
             smallValue = strs[1] + zero10.substring(0, 10 - strs[1].length());
         } else {
-            bigValue = strs[1];
+            bigValue = strs[0];
             smallValue = strs[1] + vilator.getInc();
         }
         data.replace(ExcelCloumnName.DEVICE_LATITUDE, bigValue + "." + smallValue);
     }
+    private List<Map<String, String>> incLatExist(List<Map<String, String>> data){
+        Map<String, List<String>> alarmData = vilator.alarmData();
+        Map<String, Map<String, String>> dataMap = data.stream().collect(Collectors.toMap(ele -> ele.get(ExcelCloumnName.DEVICE_CODE), ele -> ele));
+        for (Map.Entry<String, List<String>> entry : alarmData.entrySet()) {
+            List<String> subDevices = entry.getValue().subList(LonLatVilator.numLimit, entry.getValue().size()).stream().collect(Collectors.toList());
+            for (String ele : subDevices) {
+                Map<String, String> cell = dataMap.get(ele);
+                vilator.dec(cell.get(ExcelCloumnName.DEVICE_LONGITUDE), cell.get(ExcelCloumnName.DEVICE_LATITUDE), ele);
+                vilator.inc();
+                cell.replace(ExcelCloumnName.DEVICE_LATITUDE, cell.get(ExcelCloumnName.DEVICE_LATITUDE) + vilator.getInc());
+                dataMap.replace(ele, cell);
+            }
+        }
+        System.out.println("change: " + vilator.getInc());
+        return dataMap.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList());
+    }
+
 }

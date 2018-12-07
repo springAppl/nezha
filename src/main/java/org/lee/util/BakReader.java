@@ -75,6 +75,9 @@ public class BakReader extends ExcelReader{
             String value = ele.getValue();
             data.put(value, getNullOrStringCellValue(row, key, value + "数据错误"));
         }
+        data.put(ExcelCloumnName.DEVICE_LONGITUDE, getNullOrNumStringCellValue(row, 6, "经度数据错误"));
+
+        data.put(ExcelCloumnName.DEVICE_LATITUDE, getNullOrNumStringCellValue(row, 7, "纬度数据错误"));
         return data;
     }
 }

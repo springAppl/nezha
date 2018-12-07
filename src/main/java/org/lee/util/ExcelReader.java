@@ -115,6 +115,17 @@ public abstract class ExcelReader {
         return cell.getStringCellValue().trim();
     }
 
+    public String getNullOrNumStringCellValue(Row row, int cloumn, String errorMessage) throws DataInvalidException {
+        String value = getNullOrStringCellValue(row, cloumn, errorMessage);
+        if (Objects.isNull(value)) {
+            return null;
+        }
+        if (value.matches("\\d+")|| value.matches("\\d+\\.\\d+")){
+            return value;
+        }
+        return null;
+    }
+
     public String getNullOrStringCellValue(Row row, int cloumn, String errorMessage) throws DataInvalidException {
         Cell cell = row.getCell(cloumn);
 
