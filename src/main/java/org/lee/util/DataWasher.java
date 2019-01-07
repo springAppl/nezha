@@ -3,7 +3,6 @@ package org.lee.util;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DataWasher {
@@ -31,40 +30,40 @@ public class DataWasher {
     public Map<String, String> fillInnerData(Map<String, String> innerData) {
         dealDeviceBrand(innerData);
         dealInnerDataPointType(innerData);
-        dealInstallLocation(innerData, this::subSix);
+        dealInstallLocation(innerData, this::subInner);
         dealInnerDataLocationType(innerData);
         dealConnectInternet(innerData);
         dealPoliceCode(innerData);
         dealInnerInstallTime(innerData);
-        dealManageUnit(innerData, this::subSix);
-        dealPhone(innerData, this::subSix);
+        dealManageUnit(innerData, this::subInner);
+        dealPhone(innerData, this::subInner);
         dealSaveDay(innerData);
         dealDeviceState(innerData);
-        dealLonLat(innerData, this::subSix);
+        dealLonLat(innerData, this::subInner);
         return innerData;
     }
 
-    public String subSix(String data) {
-        return data.substring(0, 6);
+    public String subInner(String data) {
+        return data.substring(0, data.length());
     }
 
-    public String subEight(String data) {
-        return data.substring(0, data.length());
+    public String subOut(String data) {
+        return data.substring(0, 6);
     }
 
     public Map<String, String> fillOutData(Map<String, String> outData) {
         dealDeviceBrand(outData);
         dealOutDataPointType(outData);
-        dealInstallLocation(outData, this::subEight);
+        dealInstallLocation(outData, this::subOut);
         dealOutDataLocationType(outData);
         dealConnectInternet(outData);
         dealPoliceCode(outData);
         dealOutInstallTime(outData);
-        dealManageUnit(outData, this::subEight);
-        dealPhone(outData, this::subEight);
+        dealManageUnit(outData, this::subOut);
+        dealPhone(outData, this::subOut);
         dealSaveDay(outData);
         dealDeviceState(outData);
-        dealLonLat(outData, this::subEight);
+        dealLonLat(outData, this::subOut);
         return outData;
     }
 
@@ -218,7 +217,7 @@ public class DataWasher {
             return;
         }
 
-        Map<String, String> police = policeMap.get(data.get(mapper.apply(ExcelCloumnName.ADMIN_AREA)));
+        Map<String, String> police = policeMap.get(mapper.apply(data.get(ExcelCloumnName.ADMIN_AREA)));
         if (Objects.isNull(police)) {
             return;
         }

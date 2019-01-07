@@ -70,6 +70,10 @@ public class BakReader extends ExcelReader{
 
         data.put(ExcelCloumnName.ADMIN_AREA, getStringCellValue(row, 3, "行政区域数据错误"));
 
+        if (data.get(ExcelCloumnName.ADMIN_AREA).length() < 6) {
+            throw new DataInvalidException(String.format("第%d行，第%d列, 行政区域数据错误", row.getRowNum() + 1, 4));
+        }
+
         for (Map.Entry<Integer, String> ele : ExcelCloumnName.EXCEL_CLOUMN.entrySet()){
             Integer key = ele.getKey();
             String value = ele.getValue();
