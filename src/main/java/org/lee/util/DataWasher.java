@@ -28,6 +28,7 @@ public class DataWasher {
     }
 
     public Map<String, String> fillInnerData(Map<String, String> innerData) {
+        dealAdminArea(innerData);
         dealDeviceBrand(innerData);
         dealInnerDataPointType(innerData);
         dealInstallLocation(innerData, this::subInner);
@@ -52,6 +53,7 @@ public class DataWasher {
     }
 
     public Map<String, String> fillOutData(Map<String, String> outData) {
+        dealAdminArea(outData);
         dealDeviceBrand(outData);
         dealOutDataPointType(outData);
         dealInstallLocation(outData, this::subOut);
@@ -66,6 +68,16 @@ public class DataWasher {
         dealLonLat(outData, this::subOut);
         return outData;
     }
+
+    // 处理行政区划
+    public void  dealAdminArea(Map<String, String> data) {
+        String deviceCode = data.get(ExcelCloumnName.DEVICE_CODE);
+        String adminArea = data.get(ExcelCloumnName.ADMIN_AREA);
+        if (!deviceCode.startsWith(adminArea)) {
+            data.replace(ExcelCloumnName.ADMIN_AREA, deviceCode.substring(0, 8));
+        }
+    }
+
 
     // 摄像机品牌
     public void dealDeviceBrand(Map<String, String> data) {
