@@ -7,10 +7,13 @@ public class Boot {
     public static void main(String[] args) throws IOException, DataInvalidException, DuplicateAdminAreaException {
         Boot boot = new Boot();
         ResultColl resultColl = boot.filterNewTable();
+
         List<Map<String, String>> data = boot.dealInvalidData(resultColl.getLeftData());
         resultColl.getResultData().addAll(data);
         ExcelWriter writer = new ExcelWriter();
         writer.writeResult("result", resultColl.getResultData());
+
+        boot.calIncrement(resultColl.getResultData());
     }
 
     public List<Map<String, String>> dealInvalidData(List<Map<String, String>> data) throws IOException, DataInvalidException, DuplicateAdminAreaException {
@@ -45,6 +48,18 @@ public class Boot {
             return false;
         }
         return true;
+    }
+
+    public void calIncrement(List<Map<String, String>> result) throws IOException, DataInvalidException {
+        // 读取上一次比对的结果
+        LastResultReader lastResultReader = new LastResultReader();
+        Optional<List<Map<String, String>>> increment = lastResultReader.compareTable(result);
+        if (!increment.isPresent()){
+            System.out.println("没有增量");
+            return;
+        }
+        ExcelWriter writer = new ExcelWriter();
+        writer.writeResult("increment", increment.get());
     }
 
     public ResultColl filterNewTable() throws IOException, DataInvalidException {
