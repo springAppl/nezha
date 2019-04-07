@@ -8,11 +8,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class PoliceTableReader extends ExcelReader {
+public class PoliceTableReaderAbstract extends AbstractExcelReader {
 
     private ConsoleReader consoleReader;
 
-    public List<Map<String, String>> readPoliceTable() throws IOException, DataInvalidException {
+    private List<Map<String, String>> readPoliceTable() throws IOException,
+            DataInvalidException {
         String newTable = consoleReader.readFileName("输入公安表：");
         return read(newTable);
     }

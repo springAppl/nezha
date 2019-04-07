@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class LastResultReader extends ExcelReader {
+public class LastResultReaderAbstract extends AbstractExcelReader {
     private ConsoleReader consoleReader;
 
     public Optional<List<Map<String, String>>> compareTable(List<Map<String, String>> leftData) throws IOException, DataInvalidException {
@@ -30,7 +30,7 @@ public class LastResultReader extends ExcelReader {
         return increment(leftData, bakMap);
     }
 
-    public Map<String, Map<String, String>> toMap(List<Map<String, String>> dataList) throws DuplicateAdminAreaException {
+    private Map<String, Map<String, String>> toMap(List<Map<String, String>> dataList) throws DuplicateAdminAreaException {
         Map<String, Map<String, String>> dataMap;
         dataMap = dataList.stream().collect(Collectors.toMap(data -> data.get(ExcelCloumnName.DEVICE_CODE) + data.get(ExcelCloumnName.DEVICE_NAME), data -> data, (oldValue, newValue) -> null));
         List<String> duplicatKeies = dataMap.entrySet().stream().filter(obj -> Objects.isNull(obj.getValue())).map(Map.Entry::getKey).collect(Collectors.toList());

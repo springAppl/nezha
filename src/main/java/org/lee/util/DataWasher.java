@@ -14,7 +14,7 @@ public class DataWasher {
 
     public List<Map<String, String>> fillData(List<Map<String, String>> innerData, List<Map<String, String>> outData) throws IOException, DataInvalidException, DuplicateAdminAreaException {
         List<Map<String, String>> data = new ArrayList<>();
-        PoliceTableReader policeTableReader = new PoliceTableReader();
+        PoliceTableReaderAbstract policeTableReader = new PoliceTableReaderAbstract();
         //验证重复
         policeMap = policeTableReader.policeTable();
 

@@ -1,0 +1,12 @@
+[
+  {
+    "index": 1,
+    "name": "name",
+    "type": "string"
+  },
+  {
+    "index": 2,
+    "name": "sex",
+    "type": "string"
+  }
+]
