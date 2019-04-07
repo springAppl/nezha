@@ -4,54 +4,21 @@ import org.apache.poi.ss.usermodel.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public abstract class ExcelReader {
+    
 
-    public Map<String, Map<String, String>> toMap(List<Map<String, String>> dataList) throws DuplicateAdminAreaException {
-        Map<String, Map<String, String>> dataMap;
-        dataMap = dataList.stream().collect(Collectors.toMap(data -> data.get(ExcelCloumnName.ADMIN_AREA) + data.get(ExcelCloumnName.DEVICE_NAME), data -> data, (oldValue, newValue) -> null));
-        List<String> duplicatKeies = dataMap.entrySet().stream().filter(obj -> Objects.isNull(obj.getValue())).map(Map.Entry::getKey).collect(Collectors.toList());
-        if (!duplicatKeies.isEmpty()) {
-            throw new DuplicateAdminAreaException(" 行政区域设备名称重复：" + duplicatKeies);
-        }
-        return dataMap;
-    }
-
-    public ResultColl compare(List<Map<String, String>> newData, Map<String,Map<String, String>> compareMap) {
-        // [1,2,3],[4,5,6]
-        List<Map<String, String>> resultData = newData.stream().filter(obj -> {
-            Map<String, String> oldDataTemp = compareMap.get(obj.get(ExcelCloumnName.ADMIN_AREA) + obj.get(ExcelCloumnName.DEVICE_NAME));
-            if (Objects.nonNull(oldDataTemp)) {
-                // 覆盖值
-                coverNewTableData(obj, oldDataTemp);
-            }
-            return Objects.nonNull(oldDataTemp);
-        }).collect(Collectors.toList());
-
-        // [7,8,9]
-        List<Map<String, String>> leftData = newData.stream().filter(obj -> {
-            Map<String, String> oldDataTemp = compareMap.get(obj.get(ExcelCloumnName.ADMIN_AREA) + obj.get(ExcelCloumnName.DEVICE_NAME));
-            return Objects.isNull(oldDataTemp);
-        }).collect(Collectors.toList());
-        return new ResultColl(leftData, resultData);
-    }
-
-    private void coverNewTableData(Map<String, String> newTableData, Map<String, String> compareTableData){
-        for (Map.Entry<Integer, String> ele : ExcelCloumnName.EXCEL_CLOUMN.entrySet()) {
-            String value = ele.getValue();
-            newTableData.replace(value, compareTableData.get(value));
-        }
-    }
-
-    protected List<Map<String, String>> readBook(String file) throws IOException, DataInvalidException {
+    protected List<Map<String, String>> read(String file) throws IOException, DataInvalidException {
         Workbook wb = WorkbookFactory.create(new File(file));
         List<Map<String, String>> data = new ArrayList<>();
         for (int index = 0, len = wb.getNumberOfSheets(); index < len; index++) {
             List<Map<String, String>> temp;
             try {
-                temp = readSheet(wb.getSheetAt(index));
+                temp = read(wb.getSheetAt(index));
             } catch (DataInvalidException e) {
                 String message = e.getMessage();
                 message = file + "  " + message;
@@ -62,7 +29,8 @@ public abstract class ExcelReader {
         return data;
     }
 
-    public List<Map<String, String>> readSheet(Sheet sheet) throws IOException, DataInvalidException {
+    private List<Map<String, String>> read(Sheet sheet) throws IOException,
+            DataInvalidException {
         List<Map<String, String>> data = new ArrayList<>();
         for (int index = 0, len = sheet.getLastRowNum(); index <= len; index++) {
             Row row = sheet.getRow(index);

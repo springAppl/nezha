@@ -14,7 +14,7 @@ public class PoliceTableReader extends ExcelReader {
 
     public List<Map<String, String>> readPoliceTable() throws IOException, DataInvalidException {
         String newTable = consoleReader.readFileName("输入公安表：");
-        return readBook(newTable);
+        return read(newTable);
     }
 
     public Map<String, Map<String, String>> policeTable() throws IOException, DataInvalidException, DuplicateAdminAreaException {

@@ -3,10 +3,8 @@ package org.lee.util;
 import org.apache.poi.ss.usermodel.Row;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class BakReader extends ExcelReader{
     private ConsoleReader consoleReader;
@@ -32,8 +30,9 @@ public class BakReader extends ExcelReader{
     }
 
 
-    public ResultColl compareNewAndBakTable(List<Map<String, String>> leftData, String bakTable) throws IOException, DataInvalidException {
-        List<Map<String, String>> bakData = readBook(bakTable);
+    private ResultColl compareNewAndBakTable(List<Map<String, String>> leftData,
+                                       String bakTable) throws IOException, DataInvalidException {
+        List<Map<String, String>> bakData = read(bakTable);
         Map<String, Map<String, String>> bakMap = null;
         try {
             bakMap = toMap(bakData);
@@ -43,14 +42,14 @@ public class BakReader extends ExcelReader{
         return compare(leftData, bakMap);
     }
 
-    public ResultColl compareNewAndOldTable(String newTable, String oldTable) throws IOException, DataInvalidException {
+    private ResultColl compareNewAndOldTable(String newTable, String oldTable) throws IOException, DataInvalidException {
         List<Map<String, String>> newData;
 
-        newData = readBook(newTable);
+        newData = read(newTable);
 
         List<Map<String, String>> oldData;
 
-        oldData = readBook(oldTable);
+        oldData = read(oldTable);
 
         Map<String, Map<String, String>> oldDataMap;
         try {
@@ -83,5 +82,43 @@ public class BakReader extends ExcelReader{
 
         data.put(ExcelCloumnName.DEVICE_LATITUDE, getNullOrNumStringCellValue(row, 7, "纬度数据错误"));
         return data;
+    }
+
+
+    private ResultColl compare(List<Map<String, String>> newData, Map<String,Map<String,
+            String>> compareMap) {
+        // [1,2,3],[4,5,6]
+        List<Map<String, String>> resultData = newData.stream().filter(obj -> {
+            Map<String, String> oldDataTemp = compareMap.get(obj.get(ExcelCloumnName.ADMIN_AREA) + obj.get(ExcelCloumnName.DEVICE_NAME));
+            if (Objects.nonNull(oldDataTemp)) {
+                // 覆盖值
+                coverNewTableData(obj, oldDataTemp);
+            }
+            return Objects.nonNull(oldDataTemp);
+        }).collect(Collectors.toList());
+
+        // [7,8,9]
+        List<Map<String, String>> leftData = newData.stream().filter(obj -> {
+            Map<String, String> oldDataTemp = compareMap.get(obj.get(ExcelCloumnName.ADMIN_AREA) + obj.get(ExcelCloumnName.DEVICE_NAME));
+            return Objects.isNull(oldDataTemp);
+        }).collect(Collectors.toList());
+        return new ResultColl(leftData, resultData);
+    }
+
+    private void coverNewTableData(Map<String, String> newTableData, Map<String, String> compareTableData){
+        for (Map.Entry<Integer, String> ele : ExcelCloumnName.EXCEL_CLOUMN.entrySet()) {
+            String value = ele.getValue();
+            newTableData.replace(value, compareTableData.get(value));
+        }
+    }
+
+    public Map<String, Map<String, String>> toMap(List<Map<String, String>> dataList) throws DuplicateAdminAreaException {
+        Map<String, Map<String, String>> dataMap;
+        dataMap = dataList.stream().collect(Collectors.toMap(data -> data.get(ExcelCloumnName.ADMIN_AREA) + data.get(ExcelCloumnName.DEVICE_NAME), data -> data, (oldValue, newValue) -> null));
+        List<String> duplicatKeies = dataMap.entrySet().stream().filter(obj -> Objects.isNull(obj.getValue())).map(Map.Entry::getKey).collect(Collectors.toList());
+        if (!duplicatKeies.isEmpty()) {
+            throw new DuplicateAdminAreaException(" 行政区域设备名称重复：" + duplicatKeies);
+        }
+        return dataMap;
     }
 }

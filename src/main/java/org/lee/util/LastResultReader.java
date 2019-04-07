@@ -20,7 +20,7 @@ public class LastResultReader extends ExcelReader {
 
 
     private List<Map<String, String>> compareIncrement(List<Map<String, String>> leftData, String lastResultTable) throws IOException, DataInvalidException {
-        List<Map<String, String>> bakData = readBook(lastResultTable);
+        List<Map<String, String>> bakData = read(lastResultTable);
         Map<String, Map<String, String>> bakMap = null;
         try {
             bakMap = toMap(bakData);
