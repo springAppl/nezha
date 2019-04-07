@@ -5,3 +5,4 @@ out
 src/main/resources
 result.xls
 *.xls
+*.iml
