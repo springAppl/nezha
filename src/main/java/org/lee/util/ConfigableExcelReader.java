@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSON;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
-
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -16,9 +15,16 @@ public class ConfigableExcelReader extends AbstractExcelReader {
 
     private String file;
 
+    private List<MetaCube> metaCubes;
+
 
     public ConfigableExcelReader(String file) {
         this.file = file;
+        init();
+    }
+
+    private void init(){
+        metaCubes = readConfig();
     }
 
     private List<MetaCube> readConfig(){
@@ -40,6 +46,13 @@ public class ConfigableExcelReader extends AbstractExcelReader {
     }
 
     private void validate(List<MetaCube> metaCubes){
+        validateType(metaCubes);
+        insertID(metaCubes);
+        validateIndex(metaCubes);
+        validateName(metaCubes);
+    }
+
+    private void validateType(List<MetaCube> metaCubes){
         Set<String> types = Arrays.stream(CellType.values())
                 .map(Enum::name)
                 .collect(Collectors.toSet());
@@ -52,11 +65,39 @@ public class ConfigableExcelReader extends AbstractExcelReader {
         }
     }
 
+    private void validateName(List<MetaCube> metaCubes){
+        Map<String, Long> map =
+                metaCubes.stream().collect(Collectors.groupingBy(MetaCube::getName,
+                Collectors.counting()));
+        map.forEach((key, value) -> {
+            if (value > 1) {
+                throw new DataInvalidException(String.format("%s配置文件中name为%s重复", file,
+                        key));
+            }
+        });
+    }
+
+    private void validateIndex(List<MetaCube> metaCubes){
+        Map<Integer, Long> map =
+                metaCubes.stream().collect(Collectors.groupingBy(MetaCube::getIndex,
+                        Collectors.counting()));
+        map.forEach((key, value) -> {
+            if (value > 1) {
+                throw new DataInvalidException(String.format("%s配置文件中index为%d重复", file,
+                        key));
+            }
+        });
+    }
+
+    private void insertID(List<MetaCube> metaCubes){
+        metaCubes.forEach(metaCube -> metaCube.setId(UUID.randomUUID().toString()));
+    }
+
 
 
     @Override
     protected Map<String, String> read(Row row) throws DataInvalidException {
-        return readConfig().stream().collect(Collectors.toMap(MetaCube::getName,
+        return metaCubes.stream().collect(Collectors.toMap(MetaCube::getName,
                 ele -> value(row, ele.getIndex())));
     }
 
