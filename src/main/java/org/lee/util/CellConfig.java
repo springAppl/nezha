@@ -10,7 +10,7 @@ public class CellConfig {
     private final int START_INDEX = 0;
 
     public enum TYPES{
-        NUM("num", "整数"),
+        NUM("int", "整数"),
         STR("str", "文本");
 
 
@@ -64,4 +64,13 @@ public class CellConfig {
         this.key = key;
     }
 
+    @Override
+    public String toString() {
+        return "CellConfig{" +
+                "index=" + index +
+                ", type='" + type + '\'' +
+                ", key='" + key + '\'' +
+                ", START_INDEX=" + START_INDEX +
+                '}';
+    }
 }

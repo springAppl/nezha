@@ -1,0 +1,55 @@
+{
+  "sheetConfigs": [
+    {
+      "rowConfigs": [
+        {
+          "rowNum": 0,
+          "ignore": true
+        },
+        {
+          "rowNum": 1,
+          "cellConfigs": [
+            {
+              "index": 0,
+              "type": "int",
+              "key": "店铺编号"
+            },
+            {
+              "index": 1,
+              "type": "str",
+              "key": "店铺名称"
+            }
+          ]
+        },
+        {
+          "rowNum": 2,
+          "ignore": true
+        },
+        {
+          "cellConfigs": [
+            {
+              "index": 0,
+              "type": "str",
+              "key": "商品名称"
+            },
+            {
+              "index": 1,
+              "type": "int",
+              "key": "红"
+            },
+            {
+              "index": 2,
+              "type": "int",
+              "key": "黄"
+            },
+            {
+              "index": 3,
+              "type": "int",
+              "key": "蓝"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

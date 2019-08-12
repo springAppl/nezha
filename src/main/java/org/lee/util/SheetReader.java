@@ -60,34 +60,40 @@ public class SheetReader {
             entries.add(read(row.getCell(cellConfig.getIndex()), cellConfig));
         }
 
-        return entries.stream().collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        return entries.stream()
+                .filter(entry -> Objects.nonNull(entry.getValue()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
     private HashMap.Entry<String, Object> read(Cell cell, CellConfig cellConfig) throws DataFormatException {
 
+        if (Objects.isNull(cell)){
+            return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(), null);
+        }
         if (Objects.equals(CellConfig.TYPES.STR.getValue(), cellConfig.getType())){
-            if (cell.getCellType().equals(CellType.STRING)){
+            if (!cell.getCellType().equals(CellType.STRING)){
                 throw new DataFormatException(String.format("%d 行  %d列 格式错误, 应当为字符串",
                         cell.getRowIndex() + 1, cell.getColumnIndex() + 1));
             }
-            new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(),
+            return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(),
                     cell.getStringCellValue());
         } else if (Objects.equals(CellConfig.TYPES.NUM.getValue(), cellConfig.getType())){
-            if (cell.getCellType().equals(CellType.NUMERIC)){
+
+            if (!Objects.equals(cell.getCellType(), CellType.NUMERIC)){
                 throw new DataFormatException(String.format("%d 行  %d列 格式错误, 应当为整数",
                         cell.getRowIndex() + 1, cell.getColumnIndex() + 1));
             }
             double numValue = cell.getNumericCellValue();
-            new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(), (int) numValue);
+            return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(), (int) numValue);
         } else {
             throw new DataFormatException(String.format("%d 行  %d列 格式错误, 请仔细核对",
                     cell.getRowIndex() + 1, cell.getColumnIndex() + 1));
         }
-        return null;
     }
 
     private boolean empty(Row row, RowConfig rowConfig){
-        return rowConfig.getCellConfigs().stream().allMatch(cellConfig -> empty(row.getCell(cellConfig.getIndex())));
+
+        return Objects.isNull(row) || rowConfig.getCellConfigs().stream().allMatch(cellConfig -> empty(row.getCell(cellConfig.getIndex())));
     }
 
 

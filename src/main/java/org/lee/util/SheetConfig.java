@@ -6,18 +6,8 @@ public class SheetConfig {
 
     private Integer sheetIndex;
 
-    private String stopFlag;
-
     private List<RowConfig> rowConfigs;
 
-
-    public String getStopFlag() {
-        return stopFlag;
-    }
-
-    public void setStopFlag(String stopFlag) {
-        this.stopFlag = stopFlag;
-    }
 
     public List<RowConfig> getRowConfigs() {
         return rowConfigs;
@@ -34,5 +24,14 @@ public class SheetConfig {
 
     public void setSheetIndex(Integer sheetIndex) {
         this.sheetIndex = sheetIndex;
+    }
+
+
+    @Override
+    public String toString() {
+        return "SheetConfig{" +
+                "sheetIndex=" + sheetIndex +
+                ", rowConfigs=" + rowConfigs +
+                '}';
     }
 }

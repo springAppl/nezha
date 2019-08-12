@@ -36,4 +36,13 @@ public class RowConfig {
     public void setIgnore(boolean ignore) {
         this.ignore = ignore;
     }
+
+    @Override
+    public String toString() {
+        return "RowConfig{" +
+                "cellConfigs=" + cellConfigs +
+                ", rowNum=" + rowNum +
+                ", ignore=" + ignore +
+                '}';
+    }
 }
