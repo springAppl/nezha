@@ -1,16 +1,16 @@
 package org.lee.util;
+
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.DataFormatException;
 
 public class Boot {
-    public static void main(String[] args) throws IOException{
-        try {
-            CommandLineConfigableExcelReader commandLineConfigableExcelReader =
-                    new CommandLineConfigableExcelReader("请输入EXCEL:");
-            commandLineConfigableExcelReader.read().forEach(System.out::println);
-        } catch (DataInvalidException e) {
-            System.out.println("亲：你这里出错了,改正就好了");
-            System.out.println(e.getMessage());
-        }
-    }
+    public static void main(String[] args) throws IOException, DataFormatException {
+        InputStream in = null;
+        BookConfig bookConfig = new BookConfig(in);
+        InputStream exIn = Boot.class.getClassLoader().getResourceAsStream("ex.xlsx");
+        BookReader bookReader = new BookReader(exIn, bookConfig);
+        bookReader.readIndex(1);
 
+    }
 }
