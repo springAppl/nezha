@@ -76,7 +76,7 @@ public class SheetReader {
                         cell.getRowIndex() + 1, cell.getColumnIndex() + 1));
             }
             return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(),
-                    cell.getStringCellValue());
+                    cell.getStringCellValue().trim());
         } else if (Objects.equals(CellConfig.TYPES.NUM.getValue(), cellConfig.getType())){
 
             if (!Objects.equals(cell.getCellType(), CellType.NUMERIC)){
