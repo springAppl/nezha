@@ -15,9 +15,17 @@ public class SheetReader {
 
     private SheetConfig sheetConfig;
 
+    private boolean strNumTrans = false;
+
     public SheetReader(Sheet sheet, SheetConfig sheetConfig){
         this.sheet = sheet;
         this.sheetConfig = sheetConfig;
+    }
+
+    public SheetReader(Sheet sheet, SheetConfig sheetConfig, boolean strNumTrans){
+        this.sheet = sheet;
+        this.sheetConfig = sheetConfig;
+        this.strNumTrans = strNumTrans;
     }
 
 
@@ -71,15 +79,19 @@ public class SheetReader {
             return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(), null);
         }
         if (Objects.equals(CellConfig.TYPES.STR.getValue(), cellConfig.getType())){
-            if (!cell.getCellType().equals(CellType.STRING)){
+            if(cell.getCellType().equals(CellType.NUMERIC)){
+                return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(),
+                        String.valueOf((int)cell.getNumericCellValue()));
+            } else if (!cell.getCellType().equals(CellType.STRING)){
                 throw new DataFormatException(String.format("%d 行  %d列 格式错误, 应当为字符串",
                         cell.getRowIndex() + 1, cell.getColumnIndex() + 1));
             }
             return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(),
                     cell.getStringCellValue().trim());
         } else if (Objects.equals(CellConfig.TYPES.NUM.getValue(), cellConfig.getType())){
-
-            if (!Objects.equals(cell.getCellType(), CellType.NUMERIC)){
+            if (cell.getCellType().equals(CellType.STRING)){
+                return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(), Integer.valueOf(cell.getStringCellValue().trim()));
+            } else if (!Objects.equals(cell.getCellType(), CellType.NUMERIC)){
                 throw new DataFormatException(String.format("%d 行  %d列 格式错误, 应当为整数",
                         cell.getRowIndex() + 1, cell.getColumnIndex() + 1));
             }
