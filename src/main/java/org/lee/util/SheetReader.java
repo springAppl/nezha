@@ -78,6 +78,9 @@ public class SheetReader {
         if (Objects.isNull(cell)){
             return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(), null);
         }
+        if (Objects.equals(cell.getCellType(), CellType._NONE) && !cellConfig.isRequired()){
+            return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(), null);
+        }
         if (Objects.equals(CellConfig.TYPES.STR.getValue(), cellConfig.getType())){
             if(cell.getCellType().equals(CellType.NUMERIC)){
                 return new HashMap.SimpleImmutableEntry<String, Object>(cellConfig.getKey(),

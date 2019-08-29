@@ -16,10 +16,10 @@ import java.util.zip.DataFormatException;
 
 public class Boot {
     public static void main(String[] args) throws IOException, DataFormatException {
-        InputStream configIn = Boot.class.getClassLoader().getResourceAsStream("org/lee/util/book.json");
+        InputStream configIn = Boot.class.getClassLoader().getResourceAsStream("book.json");
 
 
-        InputStream excelIn = Boot.class.getClassLoader().getResourceAsStream("output.xlsx");
+        InputStream excelIn = Boot.class.getClassLoader().getResourceAsStream("ex.xlsx");
         BookReader bookReader = new BookReader(excelIn, BookConfig.config(configIn));
         Map<Integer, Map<String, Object>> res = bookReader.readIndex(0);
         System.out.println(res);

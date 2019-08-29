@@ -9,6 +9,8 @@ public class CellConfig {
 
     private final int START_INDEX = 0;
 
+    private boolean required = true;
+
     public enum TYPES{
         NUM("int", "整数"),
         STR("str", "文本");
@@ -62,6 +64,14 @@ public class CellConfig {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
     }
 
     @Override
