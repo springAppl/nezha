@@ -8,7 +8,10 @@ apply plugin: 'maven'
 sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+//    mavenCentral()
+        maven {
+            url 'http://maven.aliyun.com/nexus/content/groups/public/'
+        }
 }
 
 dependencies {
